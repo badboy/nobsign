@@ -5,4 +5,5 @@ authors = ["Jan-Erik Rediger <janerik@fnordig.de>"]
 
 [dependencies]
 rustc-serialize = "0.3.16"
+constant_time_eq = "0.1.0"
 ring = { git = "https://github.com/briansmith/ring" }

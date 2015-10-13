@@ -22,9 +22,11 @@
 //! ```
 extern crate rustc_serialize;
 extern crate ring;
+extern crate constant_time_eq;
 
 use ring::{digest, hmac};
 use rustc_serialize::base64::{ToBase64, URL_SAFE};
+use constant_time_eq::constant_time_eq;
 
 #[derive(Debug,PartialEq)]
 pub enum Error {
@@ -37,12 +39,6 @@ pub struct Signer {
     separator: char,
     algorithm: &'static digest::Algorithm,
     secret: String,
-}
-
-// not really constant yet
-fn constant_time_compare(left: &str, right: &str) -> bool {
-    println!("left: {:?}, right: {:?}", left, right);
-    left == right
 }
 
 impl Signer {
@@ -73,7 +69,7 @@ impl Signer {
 
         let signature = self.signature(&value);
 
-        if constant_time_compare(&sig, &signature) {
+        if constant_time_eq(&sig.as_bytes(), &signature.as_bytes()) {
             return Ok(value.into());
         }
 
