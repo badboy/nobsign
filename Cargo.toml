@@ -3,6 +3,16 @@ name = "nobsign"
 version = "0.1.0"
 authors = ["Jan-Erik Rediger <janerik@fnordig.de>"]
 
+keywords = ["cryptography", "signature", "hmac"]
+description = "A simple but effective sign library, written in Rust"
+
+homepage = "https://github.com/badboy/nobsign"
+documentation = "http://badboy.github.io/nobsign/"
+repository = "https://github.com/badboy/nobsign"
+
+license = "BSD-3-Clause"
+readme = "README.md"
+
 [dependencies]
 rustc-serialize = "0.3.16"
 constant_time_eq = "0.1.0"
