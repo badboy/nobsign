@@ -1,0 +1,8 @@
+[package]
+name = "nobsign"
+version = "0.1.0"
+authors = ["Jan-Erik Rediger <janerik@fnordig.de>"]
+
+[dependencies]
+rustc-serialize = "0.3.16"
+ring = { git = "https://github.com/briansmith/ring" }
