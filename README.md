@@ -1,6 +1,6 @@
 # nobsign
 
-A simple but effective sign library.
+A simple but effective sign library, written in Rust.
 
 Ported from [nobi](https://github.com/cyx/nobi),
 which itself is a port of [itsdangerous](http://pythonhosted.org/itsdangerous/).
