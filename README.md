@@ -5,16 +5,16 @@ A simple but effective sign library, written in Rust.
 Ported from [nobi](https://github.com/cyx/nobi),
 which itself is a port of [itsdangerous](http://pythonhosted.org/itsdangerous/).
 
-# Documentation
+## Documentation
 
 [Online Documentation](http://badboy.github.io/nobsign/nobsign/).
 
-# Possible use cases
+## Possible use cases
 
 * Creating an activation link for users
 * Creating a password reset link
 
-# Basic Example:
+## Basic Example:
 
 ```rust
 use nobsign::Signer;
@@ -30,7 +30,7 @@ let url = format!("http://yoursite.com/activate/?key={}", signed);
 let unsigned = signer.unsign(&signed).unwrap();
 ```
 
-# Example with timestamped signatures
+## Example with timestamped signatures
 
 ```rust
 use nobsign::TimestampSigner;
