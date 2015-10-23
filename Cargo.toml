@@ -15,7 +15,6 @@ readme = "README.md"
 
 [dependencies]
 rustc-serialize = "0.3.16"
-constant_time_eq = "0.1.0"
 time = "0.1.32"
 byteorder = "0.3.13"
 ring = { git = "https://github.com/briansmith/ring" }
