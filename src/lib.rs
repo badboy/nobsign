@@ -51,6 +51,8 @@ use ring::{digest, hmac};
 use rustc_serialize::base64::{ToBase64, FromBase64, URL_SAFE};
 use byteorder::{ByteOrder, LittleEndian};
 
+static ALGORITHM: &'static digest::Algorithm = &digest::SHA1;
+
 #[derive(Debug,PartialEq)]
 pub enum Error {
     BadData,
@@ -82,7 +84,6 @@ fn bytes_to_int(n: &[u8]) -> i32 {
 
 impl Signer {
     pub fn new(secret: &[u8]) -> Signer {
-        static ALGORITHM: &'static digest::Algorithm = &digest::SHA1;
         let initial_key = hmac::SigningKey::new(ALGORITHM, secret);
         let derived_key = hmac::sign(&initial_key, b"nobi.Signer");
 
@@ -238,8 +239,8 @@ fn unsign_expired() {
 
 #[test]
 fn with_secure_secret() {
-    use ring::{digest, rand};
-    let mut key = vec![0u8; digest::SHA1.digest_len];
+    use ring::rand;
+    let mut key = vec![0u8; ALGORITHM.digest_len];
     rand::fill_secure_random(&mut key[..]).unwrap();
 
     let signer = Signer::new(&key);
