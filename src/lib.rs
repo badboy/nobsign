@@ -41,7 +41,6 @@
 //! ```
 extern crate rustc_serialize;
 extern crate ring;
-extern crate constant_time_eq;
 extern crate time;
 extern crate byteorder;
 
@@ -50,7 +49,6 @@ const EPOCH : i32 = 1293840000;
 
 use ring::{digest, hmac};
 use rustc_serialize::base64::{ToBase64, FromBase64, URL_SAFE};
-use constant_time_eq::constant_time_eq;
 use byteorder::{ByteOrder, LittleEndian};
 
 #[derive(Debug,PartialEq)]
@@ -62,10 +60,9 @@ pub enum Error {
 }
 
 pub struct Signer {
-    salt: String,
     separator: char,
-    algorithm: &'static digest::Algorithm,
-    secret: String,
+    s_key: hmac::SigningKey,
+    v_key: hmac::VerificationKey,
 }
 
 pub struct TimestampSigner {
@@ -85,11 +82,14 @@ fn bytes_to_int(n: &[u8]) -> i32 {
 
 impl Signer {
     pub fn new(secret: String) -> Signer {
+        static ALGORITHM: &'static digest::Algorithm = &digest::SHA1;
+        let initial_key = hmac::SigningKey::new(ALGORITHM, &secret.as_bytes());
+        let derived_key = hmac::sign(&initial_key, b"nobi.Signer");
+
         Signer {
-            salt: "nobi.Signer".into(),
             separator: '.',
-            algorithm: &digest::SHA1,
-            secret: secret,
+            s_key: hmac::SigningKey::new(ALGORITHM, derived_key.as_ref()),
+            v_key: hmac::VerificationKey::new(ALGORITHM, derived_key.as_ref()),
         }
     }
 
@@ -109,26 +109,16 @@ impl Signer {
             None => return Err(Error::BadSignature),
         };
 
-        let signature = self.signature(&value);
+        let sig = try!(sig.from_base64().map_err(|_| Error::BadSignature));
+        try!(hmac::verify(&self.v_key, value.as_bytes(), &sig)
+                .map_err(|_| Error::BadSignature));
 
-        if constant_time_eq(&sig.as_bytes(), &signature.as_bytes()) {
-            return Ok(value.into());
-        }
-
-        Err(Error::BadSignature)
+        Ok(value.into())
     }
 
-
-    fn derive_key(&self) -> digest::Digest {
-        let s_key = hmac::SigningKey::new(self.algorithm, &self.secret.as_bytes());
-        hmac::sign(&s_key, &self.salt.as_bytes())
-    }
 
     fn signature(&self, value: &str) -> String {
-        let derived_key = self.derive_key();
-        let s_key = hmac::SigningKey::new(&self.algorithm, derived_key.as_ref());
-        let sig = hmac::sign(&s_key, value.as_bytes());
-
+        let sig = hmac::sign(&self.s_key, value.as_bytes());
         sig.as_ref().to_base64(URL_SAFE)
     }
 }
