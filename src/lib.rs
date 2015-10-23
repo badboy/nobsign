@@ -12,7 +12,7 @@
 //!
 //! ```rust
 //! use nobsign::Signer;
-//! let signer = Signer::new("my secret".into());
+//! let signer = Signer::new(b"my secret");
 //!
 //! // Let's say the user's ID is 101
 //! let signed = signer.sign("101");
@@ -28,7 +28,7 @@
 //!
 //! ```rust
 //! use nobsign::TimestampSigner;
-//! let signer = TimestampSigner::new("my secret".into());
+//! let signer = TimestampSigner::new(b"my secret");
 //!
 //! // Let's say the user's ID is 101
 //! let signed = signer.sign("101");
@@ -81,9 +81,9 @@ fn bytes_to_int(n: &[u8]) -> i32 {
 }
 
 impl Signer {
-    pub fn new(secret: String) -> Signer {
+    pub fn new(secret: &[u8]) -> Signer {
         static ALGORITHM: &'static digest::Algorithm = &digest::SHA1;
-        let initial_key = hmac::SigningKey::new(ALGORITHM, &secret.as_bytes());
+        let initial_key = hmac::SigningKey::new(ALGORITHM, secret);
         let derived_key = hmac::sign(&initial_key, b"nobi.Signer");
 
         Signer {
@@ -124,7 +124,7 @@ impl Signer {
 }
 
 impl TimestampSigner {
-    pub fn new(secret: String) -> TimestampSigner {
+    pub fn new(secret: &[u8]) -> TimestampSigner {
         TimestampSigner { signer: Signer::new(secret) }
     }
 
@@ -188,7 +188,7 @@ impl TimestampSigner {
 
 #[test]
 fn signs() {
-    let signer = Signer::new("my-key".into());
+    let signer = Signer::new(b"my-key");
 
     let signed = signer.sign("value");
     assert_eq!("value.EWkF3-80sipsPgLQ01NuTuPb0jQ".to_owned(), signed);
@@ -198,7 +198,7 @@ fn signs() {
 
 #[test]
 fn bad_unsign() {
-    let signer = Signer::new("my-key".into());
+    let signer = Signer::new(b"my-key");
 
     let signed = "value.ABCDEF";
     assert_eq!(Err(Error::BadSignature), signer.unsign(&signed));
@@ -206,7 +206,7 @@ fn bad_unsign() {
 
 #[test]
 fn signs_with_timestamp() {
-    let signer = TimestampSigner::new("my-key".into());
+    let signer = TimestampSigner::new(b"my-key");
 
     let signed = signer.sign("value");
 
@@ -215,8 +215,7 @@ fn signs_with_timestamp() {
 
 #[test]
 fn bad_unsign_with_timestamp() {
-
-    let signer = TimestampSigner::new("my-key".into());
+    let signer = TimestampSigner::new(b"my-key");
 
     let signed = "value.ABCDEF";
     assert_eq!(Err(Error::BadSignature), signer.unsign(&signed, 10));
@@ -231,8 +230,20 @@ fn bad_unsign_with_timestamp() {
 #[test]
 fn unsign_expired() {
     use std::thread::sleep_ms;
-    let signer = TimestampSigner::new("my-key".into());
+    let signer = TimestampSigner::new(b"my-key");
     let signed = signer.sign("value");
     sleep_ms(1000);
     assert_eq!(Err(Error::SignatureExpired), signer.unsign(&signed, 0));
+}
+
+#[test]
+fn with_secure_secret() {
+    use ring::{digest, rand};
+    let mut key = vec![0u8; digest::SHA1.digest_len];
+    rand::fill_secure_random(&mut key[..]).unwrap();
+
+    let signer = Signer::new(&key);
+    let signed = signer.sign("Hello world!");
+
+    assert_eq!("Hello world!", signer.unsign(&signed).unwrap());
 }
