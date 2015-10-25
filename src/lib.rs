@@ -63,8 +63,7 @@ pub enum Error {
 
 pub struct Signer {
     separator: char,
-    s_key: hmac::SigningKey,
-    v_key: hmac::VerificationKey,
+    key: hmac::SigningKey,
 }
 
 pub struct TimestampSigner {
@@ -89,8 +88,7 @@ impl Signer {
 
         Signer {
             separator: '.',
-            s_key: hmac::SigningKey::new(ALGORITHM, derived_key.as_ref()),
-            v_key: hmac::VerificationKey::new(ALGORITHM, derived_key.as_ref()),
+            key: hmac::SigningKey::new(ALGORITHM, derived_key.as_ref()),
         }
     }
 
@@ -111,7 +109,7 @@ impl Signer {
         };
 
         let sig = try!(sig.from_base64().map_err(|_| Error::BadSignature));
-        try!(hmac::verify(&self.v_key, value.as_bytes(), &sig)
+        try!(hmac::verify_with_own_key(&self.key, value.as_bytes(), &sig)
                 .map_err(|_| Error::BadSignature));
 
         Ok(value.into())
@@ -119,7 +117,7 @@ impl Signer {
 
 
     fn signature(&self, value: &str) -> String {
-        let sig = hmac::sign(&self.s_key, value.as_bytes());
+        let sig = hmac::sign(&self.key, value.as_bytes());
         sig.as_ref().to_base64(URL_SAFE)
     }
 }
