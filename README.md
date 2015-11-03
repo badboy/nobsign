@@ -18,7 +18,7 @@ which itself is a port of [itsdangerous](http://pythonhosted.org/itsdangerous/).
 
 ```rust
 use nobsign::Signer;
-let signer = Signer::new("my secret".into());
+let signer = Signer::new(b"my secret");
 
 // Let's say the user's ID is 101
 let signed = signer.sign("101");
@@ -34,7 +34,7 @@ let unsigned = signer.unsign(&signed).unwrap();
 
 ```rust
 use nobsign::TimestampSigner;
-let signer = TimestampSigner::new("my secret".into());
+let signer = TimestampSigner::new(b"my secret");
 
 // Let's say the user's ID is 101
 let signed = signer.sign("101");
