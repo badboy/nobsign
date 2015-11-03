@@ -33,5 +33,6 @@ after_success:
 env:
   global:
     - CC=gcc-4.8
+    - CXX=g++-4.8
     - TRAVIS_CARGO_NIGHTLY_FEATURE=""
     - secure: "PsR0Mg04pydnTP/8dksrCNaPn+x4LCHiX3BufvM+VsemEg42zQPnciuSQTl0ywhOn1Q45L4OzJBjVmBgh9f5MOygXYne0kCm0WlEoXlkVeQ+drigfg7079rY44tUUp+oZqIIkJpZSEwFqfG0iB1PYft1WiLlUmqOcCJnTfBKVvIik6vJ5zGkSWtKXCaxbjw8vngf750FLgnIs5e86DW/bmW5Px2noqK2ZV+I/4SCLaTwGAXvxE+i8DIroHD801gB2ADFsIlfhevWZz20dy+r1FwBNF53TBPJDbKAoFudyKjzQH3Ne7Fqabin1Y6FnQ68SSde0rSeCNMsu3LV3EsyMB6ixmUIPyAQkw2s4UgTSUktHVarccT+MbxBkuZbVNmV8YH6EIG4xVblQTjd5AojY/Q49d27XKhddyuGXe0rhy27Ko6cR/1p8eUHfC/xcQmAw5QyC2cHLhfPVc9JF7H86a8KuD9vMfTWctx8a/O4aOxo+tCRcHgL1z0klrt82JkU9QB5rHxer1r9b9fztNY/o0wv1yt3r7rsajTPrEqMN3pBY+fOpfhR2Dj1+wM/eFf0dhNA+N61yWtpXtuMoIYTIbplqq+kDmwikft/1PfR1heR/cB0ANZJ0uz8abWYEgyHtznaeVhfDFPF/ag8xu3qe5wWjCY9oRMK+GnukC+Gw9Y="
