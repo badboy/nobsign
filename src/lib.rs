@@ -235,10 +235,12 @@ mod test {
 
     #[test]
     fn unsign_expired() {
-        use std::thread::sleep_ms;
+        use std::thread;
+        use std::time::Duration;
+
         let signer = TimestampSigner::new(b"my-key");
         let signed = signer.sign("value");
-        sleep_ms(1000);
+        thread::sleep(Duration::from_secs(1));
         assert_eq!(Err(Error::SignatureExpired), signer.unsign(&signed, 0));
     }
 
