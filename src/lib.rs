@@ -246,9 +246,10 @@ mod test {
 
     #[test]
     fn with_secure_secret() {
-        use ring::rand;
-        let mut key = vec![0u8; ALGORITHM.digest_len];
-        rand::fill_secure_random(&mut key).unwrap();
+        use ring::rand::SystemRandom;
+        let sys_rand = SystemRandom::new();
+        let mut key = vec![0u8; ALGORITHM.output_len];
+        sys_rand.fill(&mut key).unwrap();
 
         let signer = Signer::new(&key);
         let signed = signer.sign("Hello world!");
