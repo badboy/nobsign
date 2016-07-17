@@ -185,64 +185,73 @@ impl TimestampSigner {
     }
 }
 
-#[test]
-fn signs() {
-    let signer = Signer::new(b"my-key");
+#[cfg(test)]
+mod test {
+    use super::*;
+    use super::ALGORITHM;
 
-    let signed = signer.sign("value");
-    assert_eq!("value.EWkF3-80sipsPgLQ01NuTuPb0jQ".to_owned(), signed);
+    #[test]
+    fn signs() {
+        let signer = Signer::new(b"my-key");
 
-    assert_eq!("value".to_owned(), signer.unsign(&signed).unwrap());
-}
+        let signed = signer.sign("value");
+        assert_eq!("value.EWkF3-80sipsPgLQ01NuTuPb0jQ".to_owned(), signed);
 
-#[test]
-fn bad_unsign() {
-    let signer = Signer::new(b"my-key");
+        assert_eq!("value".to_owned(), signer.unsign(&signed).unwrap());
+    }
 
-    let signed = "value.ABCDEF";
-    assert_eq!(Err(Error::BadSignature), signer.unsign(&signed));
-}
+    #[test]
+    fn bad_unsign() {
+        let signer = Signer::new(b"my-key");
 
-#[test]
-fn signs_with_timestamp() {
-    let signer = TimestampSigner::new(b"my-key");
+        let signed = "value.ABCDEF";
+        assert_eq!(Err(Error::BadSignature), signer.unsign(&signed));
+    }
 
-    let signed = signer.sign("value");
+    #[test]
+    fn signs_with_timestamp() {
+        let signer = TimestampSigner::new(b"my-key");
 
-    assert_eq!("value".to_owned(), signer.unsign(&signed, 100).unwrap());
-}
+        let signed = signer.sign("value");
 
-#[test]
-fn bad_unsign_with_timestamp() {
-    let signer = TimestampSigner::new(b"my-key");
+        assert_eq!("value".to_owned(), signer.unsign(&signed, 100).unwrap());
+    }
 
-    let signed = "value.ABCDEF";
-    assert_eq!(Err(Error::BadSignature), signer.unsign(&signed, 10));
+    #[test]
+    fn bad_unsign_with_timestamp() {
+        let signer = TimestampSigner::new(b"my-key");
 
-    let signed = "value.EWkF3-80sipsPgLQ01NuTuPb0jQ";
-    assert_eq!(Err(Error::BadTimeSignature), signer.unsign(&signed, 10));
+        let signed = "value.ABCDEF";
+        assert_eq!(Err(Error::BadSignature), signer.unsign(&signed, 10));
 
-    let signed = "value.AB.HHdWpuF7QVDZ_02wvECHvtV8vIc";
-    assert_eq!(Err(Error::BadTimeSignature), signer.unsign(&signed, 10));
-}
+        let signed = "value.EWkF3-80sipsPgLQ01NuTuPb0jQ";
+        assert_eq!(Err(Error::BadTimeSignature), signer.unsign(&signed, 10));
 
-#[test]
-fn unsign_expired() {
-    use std::thread::sleep_ms;
-    let signer = TimestampSigner::new(b"my-key");
-    let signed = signer.sign("value");
-    sleep_ms(1000);
-    assert_eq!(Err(Error::SignatureExpired), signer.unsign(&signed, 0));
-}
+        let signed = "value.AB.HHdWpuF7QVDZ_02wvECHvtV8vIc";
+        assert_eq!(Err(Error::BadTimeSignature), signer.unsign(&signed, 10));
+    }
 
-#[test]
-fn with_secure_secret() {
-    use ring::rand;
-    let mut key = vec![0u8; ALGORITHM.digest_len];
-    rand::fill_secure_random(&mut key).unwrap();
+    #[test]
+    fn unsign_expired() {
+        use std::thread;
+        use std::time::Duration;
 
-    let signer = Signer::new(&key);
-    let signed = signer.sign("Hello world!");
+        let signer = TimestampSigner::new(b"my-key");
+        let signed = signer.sign("value");
+        thread::sleep(Duration::from_secs(1));
+        assert_eq!(Err(Error::SignatureExpired), signer.unsign(&signed, 0));
+    }
 
-    assert_eq!("Hello world!", signer.unsign(&signed).unwrap());
+    #[test]
+    fn with_secure_secret() {
+        use ring::rand::SystemRandom;
+        let sys_rand = SystemRandom::new();
+        let mut key = vec![0u8; ALGORITHM.output_len];
+        sys_rand.fill(&mut key).unwrap();
+
+        let signer = Signer::new(&key);
+        let signed = signer.sign("Hello world!");
+
+        assert_eq!("Hello world!", signer.unsign(&signed).unwrap());
+    }
 }
