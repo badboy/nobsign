@@ -24,6 +24,5 @@ include = [
 
 [dependencies]
 rustc-serialize = "0.3.19"
-time = "0.1.35"
 byteorder = "0.5.0"
 ring = "0.2.3"
