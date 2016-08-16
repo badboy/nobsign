@@ -63,11 +63,11 @@ script:
   - travis-cargo build
   - travis-cargo test
   - |
-      [ TRAVIS_OS_NAME = "linux" ] && travis-cargo --only stable doc
+      [ TRAVIS_OS_NAME = "osx" ] || travis-cargo --only stable doc
 after_success:
   - travis-cargo --only stable doc-upload
   - |
-      [ TRAVIS_OS_NAME = "linux" ] && travis-cargo coveralls --no-sudo
+      [ TRAVIS_OS_NAME = "osx" ] || travis-cargo coveralls --no-sudo
 
 env:
   global:
