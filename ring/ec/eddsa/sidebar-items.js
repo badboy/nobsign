@@ -1,0 +1,1 @@
+initSidebarItems({"static":[["ED25519","Verification of [Ed25519] signatures."]],"struct":[["Ed25519KeyPair","An Ed25519 key pair, for signing."],["Ed25519KeyPairBytes","The raw bytes of the Ed25519 key pair, for serialization."],["EdDSAParameters","Parameters for EdDSA signing and verification."]]});

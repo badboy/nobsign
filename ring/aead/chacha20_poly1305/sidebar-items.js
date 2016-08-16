@@ -1,0 +1,1 @@
+initSidebarItems({"static":[["CHACHA20_POLY1305","ChaCha20-Poly1305 as described in [RFC 7539]."],["CHACHA20_POLY1305_OLD","The old ChaCha20-Poly13065 construction used in OpenSSH's [chacha20-poly1305@openssh.com] and the experimental TLS cipher suites with IDs `0xCC13` (ECDHE-RSA) and `0xCC14` (ECDHE-ECDSA). Use `CHACHA20_POLY1305` instead."]]});

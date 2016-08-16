@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["PUBLIC_KEY_MAX_LEN","The maximum length, in bytes, of an encoded public key."]],"mod":[["eddsa","EdDSA Signatures."],["suite_b","Elliptic curve operations on P-256 & P-384."],["x25519","X25519 Key agreement."]]});
