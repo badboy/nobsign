@@ -1,12 +1,6 @@
 language: rust
 sudo: false
 
-# run builds for both all the trains
-rust:
-  - stable
-  - beta
-  - nightly
-
 matrix:
   include:
     - env: CC=gcc-4.8 CXX=g++-4.8
