@@ -14,7 +14,7 @@ license = "BSD-3-Clause"
 readme = "README.md"
 
 [dependencies]
-rustc-serialize = "0.3.16"
-time = "0.1.32"
+rustc-serialize = "0.3.19"
+time = "0.1.35"
 byteorder = "0.5.0"
-ring = { git = "https://github.com/briansmith/ring" }
+ring = "0.2.3"
