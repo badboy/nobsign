@@ -41,11 +41,10 @@
 //! ```
 extern crate rustc_serialize;
 extern crate ring;
-extern crate time;
 extern crate byteorder;
 
 // Use same EPOCH as nobi, the Ruby implementation
-const EPOCH : i32 = 1293840000;
+const EPOCH : u64 = 1293840000;
 
 use ring::{digest, hmac};
 use rustc_serialize::base64::{ToBase64, FromBase64, URL_SAFE};
@@ -128,8 +127,11 @@ impl TimestampSigner {
     }
 
     fn get_timestamp(&self) -> i32 {
-        let now = time::now_utc().to_timespec();
-        now.sec as i32 - EPOCH
+        let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH);
+        (match now {
+            Ok(dur) => dur,
+            Err(err) => err.duration(),
+        }.as_secs() - EPOCH) as i32
     }
 
     pub fn sign(&self, value: &str) -> String {
