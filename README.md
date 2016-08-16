@@ -1,5 +1,8 @@
 # nobsign
 
+[![crates.io](http://meritbadge.herokuapp.com/nobsign)](https://crates.io/crates/nobsign)
+[![Build Status](https://travis-ci.org/badboy/nobsign.svg?branch=master)](https://travis-ci.org/badboy/nobsign)
+
 A simple but effective sign library, written in Rust.
 
 Ported from [nobi](https://github.com/cyx/nobi),
