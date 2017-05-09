@@ -39,16 +39,16 @@
 //! // In your code, you can verify the expiration:
 //! signer.unsign(&signed, 86400).unwrap(); // 1 day expiration
 //! ```
-extern crate rustc_serialize;
 extern crate ring;
 extern crate byteorder;
+extern crate base64;
 
 // Use same EPOCH as nobi, the Ruby implementation
 const EPOCH : u64 = 1293840000;
 
 use ring::{digest, hmac};
-use rustc_serialize::base64::{ToBase64, FromBase64, URL_SAFE};
 use byteorder::{ByteOrder, LittleEndian};
+use base64::URL_SAFE_NO_PAD;
 
 static ALGORITHM: &'static digest::Algorithm = &digest::SHA1;
 
@@ -107,7 +107,7 @@ impl Signer {
             None => return Err(Error::BadSignature),
         };
 
-        let sig = try!(sig.from_base64().map_err(|_| Error::BadSignature));
+        let sig = try!(base64::decode_config(sig, URL_SAFE_NO_PAD).map_err(|_| Error::BadSignature));
         try!(hmac::verify_with_own_key(&self.key, value.as_bytes(), &sig)
                 .map_err(|_| Error::BadSignature));
 
@@ -117,7 +117,7 @@ impl Signer {
 
     fn signature(&self, value: &str) -> String {
         let sig = hmac::sign(&self.key, value.as_bytes());
-        sig.as_ref().to_base64(URL_SAFE)
+        base64::encode_config(sig.as_ref(), URL_SAFE_NO_PAD)
     }
 }
 
@@ -137,7 +137,7 @@ impl TimestampSigner {
     pub fn sign(&self, value: &str) -> String {
         let timestamp = self.get_timestamp();
         let timestamp = int_to_bytes(timestamp);
-        let timestamp = timestamp.to_base64(URL_SAFE);
+        let timestamp = base64::encode_config(&timestamp, URL_SAFE_NO_PAD);
         let value = format!("{}{}{}", value, self.signer.separator, timestamp);
 
         format!("{}{}{}",
@@ -164,10 +164,9 @@ impl TimestampSigner {
             None => return Err(Error::BadSignature),
         };
 
-        let timestamp = match timestamp.from_base64() {
-            Err(_) => return Err(Error::BadTimeSignature),
-            Ok(timestamp) => timestamp,
-        };
+        let timestamp = base64::decode_config(timestamp, URL_SAFE_NO_PAD)
+            .map_err(|_| Error::BadTimeSignature)?;
+
         if timestamp.len() != 4 {
             return Err(Error::BadTimeSignature);
         }
