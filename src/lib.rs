@@ -246,7 +246,7 @@ mod test {
 
     #[test]
     fn with_secure_secret() {
-        use ring::rand::SystemRandom;
+        use ring::rand::{SystemRandom, SecureRandom};
         let sys_rand = SystemRandom::new();
         let mut key = vec![0u8; ALGORITHM.output_len];
         sys_rand.fill(&mut key).unwrap();
