@@ -55,8 +55,10 @@ matrix:
       os: osx
 
 script:
-  - cargo build
-  - cargo test
+  - cargo test --all
+  - rustup component add rustfmt
+  - cargo fmt --all -- --check
+  - cargo build --release
 
 notifications:
   email: false
