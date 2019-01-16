@@ -10,7 +10,7 @@ which itself is a port of [itsdangerous](http://pythonhosted.org/itsdangerous/).
 
 ## Documentation
 
-[Online Documentation](http://badboy.github.io/nobsign/nobsign/).
+[Online Documentation](https://docs.rs/crate/nobsign).
 
 ## Possible use cases
 
