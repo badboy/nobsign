@@ -23,6 +23,6 @@ include = [
 ]
 
 [dependencies]
-byteorder = "1.0.0"
-ring = "0.9.4"
-base64 = "0.5.2"
+byteorder = "1.2"
+ring = "0.14"
+base64 = "0.10"
