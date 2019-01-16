@@ -39,20 +39,20 @@
 //! // In your code, you can verify the expiration:
 //! signer.unsign(&signed, 86400).unwrap(); // 1 day expiration
 //! ```
-extern crate ring;
-extern crate byteorder;
 extern crate base64;
+extern crate byteorder;
+extern crate ring;
 
 // Use same EPOCH as nobi, the Ruby implementation
-const EPOCH : u64 = 1293840000;
+const EPOCH: u64 = 1293840000;
 
-use ring::{digest, hmac};
-use byteorder::{ByteOrder, LittleEndian};
 use base64::URL_SAFE_NO_PAD;
+use byteorder::{ByteOrder, LittleEndian};
+use ring::{digest, hmac};
 
 static ALGORITHM: &'static digest::Algorithm = &digest::SHA1;
 
-#[derive(Debug,PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Error {
     BadData,
     BadSignature,
@@ -107,13 +107,12 @@ impl Signer {
             None => return Err(Error::BadSignature),
         };
 
-        let sig = try!(base64::decode_config(sig, URL_SAFE_NO_PAD).map_err(|_| Error::BadSignature));
-        try!(hmac::verify_with_own_key(&self.key, value.as_bytes(), &sig)
-                .map_err(|_| Error::BadSignature));
+        let sig = base64::decode_config(sig, URL_SAFE_NO_PAD).map_err(|_| Error::BadSignature)?;
+        hmac::verify_with_own_key(&self.key, value.as_bytes(), &sig)
+            .map_err(|_| Error::BadSignature)?;
 
         Ok(value.into())
     }
-
 
     fn signature(&self, value: &str) -> String {
         let sig = hmac::sign(&self.key, value.as_bytes());
@@ -123,7 +122,9 @@ impl Signer {
 
 impl TimestampSigner {
     pub fn new(secret: &[u8]) -> TimestampSigner {
-        TimestampSigner { signer: Signer::new(secret) }
+        TimestampSigner {
+            signer: Signer::new(secret),
+        }
     }
 
     fn get_timestamp(&self) -> i32 {
@@ -131,7 +132,9 @@ impl TimestampSigner {
         (match now {
             Ok(dur) => dur,
             Err(err) => err.duration(),
-        }.as_secs() - EPOCH) as i32
+        }
+        .as_secs()
+            - EPOCH) as i32
     }
 
     pub fn sign(&self, value: &str) -> String {
@@ -140,14 +143,16 @@ impl TimestampSigner {
         let timestamp = base64::encode_config(&timestamp, URL_SAFE_NO_PAD);
         let value = format!("{}{}{}", value, self.signer.separator, timestamp);
 
-        format!("{}{}{}",
-                value,
-                self.signer.separator,
-                &self.signature(&value))
+        format!(
+            "{}{}{}",
+            value,
+            self.signer.separator,
+            &self.signature(&value)
+        )
     }
 
     pub fn unsign(&self, value: &str, max_age: u32) -> Result<String, Error> {
-        let result = try!(self.signer.unsign(value));
+        let result = self.signer.unsign(value)?;
 
         if !result.contains(self.signer.separator) {
             return Err(Error::BadTimeSignature);
@@ -180,7 +185,6 @@ impl TimestampSigner {
         Ok(value.into())
     }
 
-
     fn signature(&self, value: &str) -> String {
         self.signer.signature(value)
     }
@@ -188,8 +192,8 @@ impl TimestampSigner {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use super::ALGORITHM;
+    use super::*;
 
     #[test]
     fn signs() {
@@ -245,7 +249,7 @@ mod test {
 
     #[test]
     fn with_secure_secret() {
-        use ring::rand::{SystemRandom, SecureRandom};
+        use ring::rand::{SecureRandom, SystemRandom};
         let sys_rand = SystemRandom::new();
         let mut key = vec![0u8; ALGORITHM.output_len];
         sys_rand.fill(&mut key).unwrap();
